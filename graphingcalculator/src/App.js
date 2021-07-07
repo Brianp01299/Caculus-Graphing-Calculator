@@ -1,35 +1,44 @@
-import logo from './logo.svg';
 import './App.css';
 import React from "react"
 import Component from "react"
-//import Plotly from "plotly"
 import { create, all } from 'mathjs';
 const math = create(all);
 
-
+// to do 
+//1 removing text boxes
+//2 optmiizing compilation of datapoints
+//3 add slider for visualization
+//4 scaling
+//7/8 1
+//7/9 2
 class App extends React.Component {
 
   constructor(props) {
     super(props)
     this.state = {
       "Derivative": 0,
-        "dx":1,
+      "dx":.5,
       "minX": 0,
       "minY":0,
       "maxX":10,
-      "maxY":100,
+      "maxY":10,
       "dataX":[],
       "dataY":[],
       "arr":[],
       "y0":0
+      //add state variables to control number of textboxes for each div and use that when naming them
+      //in order to make removal more efficient, assign the minus buttons next to them with the same number
     }
   }
+  //using mathjs evaluates a mathematical expression
   evaluateDer(tx, ty, expression) {
     let scope = {x:tx,y:ty};
     return math.compile(expression).evaluate(scope);
   }
 
   produceDatePointsE(derivative) {
+    //produces a set of data points stored in state variables dataX/Y to be visualized 
+    //as an antiderivative using euler's method
     this.state.dataX = []
     this.state.dataY = []
     for (var i =  this.state.minX;i<this.state.maxX;i+=this.state.dx) {
@@ -39,6 +48,8 @@ class App extends React.Component {
     }
   }
   produceDatePointsS(derivative) {
+    //produces sets of 4 points (2x,2y) to generate a slope field stored 
+    //in state virables arr
     var that =this
     that.state.arr = []
     for (var i =  that.state.minX;i<that.state.maxX;i+=that.state.dx) {
@@ -49,6 +60,7 @@ class App extends React.Component {
     }
   }
   make_trace({data, set_type = "scatter", set_mode = "lines"} = {}){
+    //makes data points into correct format for visualization
     let dataPoint = [];
     for(let i = 0; i<data.length; i+=2){
       dataPoint.push({
@@ -61,11 +73,19 @@ class App extends React.Component {
     }
     return dataPoint;
   }
-
+  addBox(div){
+      //dynamically adds a text box at the specified div
+      var box = document.createElement("input");
+      box.type = "text";
+      document.getElementById(div).appendChild(box)
+      const lineBreak = document.createElement('br');
+      document.getElementById(div).appendChild(lineBreak)
+  }
   graph() {
-    var graphDiv = document.getElementById('graph')
-    this.produceDatePointsE(document.getElementById("derivative").value)
-    this.produceDatePointsS(document.getElementById("derivative").value)
+    //visualizes data points using plotly
+    var graphDiv = document.getElementById('graph');
+    this.produceDatePointsE(document.getElementById("derivative").value);
+    this.produceDatePointsS(document.getElementById("derivative").value);
 
     var layout = {
       xaxis: {
@@ -83,12 +103,32 @@ class App extends React.Component {
     window.Plotly.newPlot(graphDiv, this.make_trace({data:this.state.arr,set_type:"scatter", set_mode : "lines"}), layout);
   }
   render() {
+    //render function. Three different divs for different types of functions
     var that = this
     return (
       <div className="App">
         <header className="App-header">
          <input type ="text" id = "derivative"/>
-         <button onClick = {function(){that.graph()}}> run </button>
+         <div id = "function">
+           <text>Function Graphing</text>
+           <div id = "add0"></div>
+           <button onClick = {function(){that.addBox("add0")}}>+</button>
+         </div>
+         <div id = "SFG">
+           <text>Slope Field Generator</text>
+           <div id = "add1"></div>
+           <button onClick = {function(){that.addBox("add1")}}>+</button>
+         </div>
+         <div id = "Euler">
+           <text>Euler's Method </text>
+
+           <div id = "add2"></div>
+           <button onClick = {function(){that.addBox("add2")}}>+</button>
+         </div>
+         <div id = "run">
+          <button onClick = {function(){that.graph()}}> run </button>
+         </div>
+         
          <div id = "graph"></div>
         </header>
       </div>
