@@ -25,7 +25,9 @@ class App extends React.Component {
       "dataX":[],
       "dataY":[],
       "arr":[],
-      "y0":0
+      "y0":0,
+      "counter":[0,0,0]
+      //counter is an array of graph, sfg, and eulers so we know how many of each exist
       //add state variables to control number of textboxes for each div and use that when naming them
       //in order to make removal more efficient, assign the minus buttons next to them with the same number
     }
@@ -73,13 +75,33 @@ class App extends React.Component {
     }
     return dataPoint;
   }
-  addBox(div){
+  addBox(div,type){
       //dynamically adds a text box at the specified div
       var box = document.createElement("input");
       box.type = "text";
-      document.getElementById(div).appendChild(box)
+      console.log(div + String(this.state.counter[type]))
+      box.id = div+String(this.state.counter[type]);
+      this.state.counter[type]+=1;
+      console.log(this.state.counter)
+      document.getElementById(div).appendChild(box);
+      var button = document.createElement("input");
+      button.type = "button";
+      button.value = "-";
+      button.id = div+String(this.state.counter[type])+'-';
+      var that = this
+      button.onclick = function() {
+        that.removeBox(box.id)
+        that.removeBox(button.id)
+        that.removeBox(lineBreak.id)
+      }
+      document.getElementById(div).appendChild(button);
       const lineBreak = document.createElement('br');
-      document.getElementById(div).appendChild(lineBreak)
+      lineBreak.id = div+String(this.state.counter[type]) +'br'
+      document.getElementById(div).appendChild(lineBreak);
+  }
+  removeBox(div) {
+    var elem = document.getElementById(div);
+    elem.parentNode.removeChild(elem);
   }
   graph() {
     //visualizes data points using plotly
@@ -112,18 +134,18 @@ class App extends React.Component {
          <div id = "function">
            <text>Function Graphing</text>
            <div id = "add0"></div>
-           <button onClick = {function(){that.addBox("add0")}}>+</button>
+           <button onClick = {function(){that.addBox("add0",0)}}>+</button>
          </div>
          <div id = "SFG">
            <text>Slope Field Generator</text>
            <div id = "add1"></div>
-           <button onClick = {function(){that.addBox("add1")}}>+</button>
+           <button onClick = {function(){that.addBox("add1",1)}}>+</button>
          </div>
          <div id = "Euler">
            <text>Euler's Method </text>
 
            <div id = "add2"></div>
-           <button onClick = {function(){that.addBox("add2")}}>+</button>
+           <button onClick = {function(){that.addBox("add2",2)}}>+</button>
          </div>
          <div id = "run">
           <button onClick = {function(){that.graph()}}> run </button>
