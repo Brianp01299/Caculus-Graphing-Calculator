@@ -5,11 +5,12 @@ import { create, all } from 'mathjs';
 const math = create(all);
 
 // to do 
-//1 removing text boxes
 //2 optmiizing compilation of datapoints
+//2.4 organize code
+//(2.5) constants
 //3 add slider for visualization
 //4 scaling
-//7/8 1
+//7/8 1 done
 //7/9 2
 class App extends React.Component {
 
@@ -79,10 +80,8 @@ class App extends React.Component {
       //dynamically adds a text box at the specified div
       var box = document.createElement("input");
       box.type = "text";
-      console.log(div + String(this.state.counter[type]))
       box.id = div+String(this.state.counter[type]);
       this.state.counter[type]+=1;
-      console.log(this.state.counter)
       document.getElementById(div).appendChild(box);
       var button = document.createElement("input");
       button.type = "button";
@@ -96,18 +95,26 @@ class App extends React.Component {
       }
       document.getElementById(div).appendChild(button);
       const lineBreak = document.createElement('br');
-      lineBreak.id = div+String(this.state.counter[type]) +'br'
+      lineBreak.id = div+String(this.state.counter[type]) +'br';
       document.getElementById(div).appendChild(lineBreak);
   }
   removeBox(div) {
     var elem = document.getElementById(div);
     elem.parentNode.removeChild(elem);
   }
+
   graph() {
     //visualizes data points using plotly
     var graphDiv = document.getElementById('graph');
-    this.produceDatePointsE(document.getElementById("derivative").value);
+    //this.produceDatePointsE(document.getElementById("derivative").value);
     this.produceDatePointsS(document.getElementById("derivative").value);
+    for (var i = 0;i<this.state.counter[2];i++) {
+      if(typeof(document.getElementById("add2"+String(i))) != 'undefined' && document.getElementById("add2"+String(i)) != null){
+        this.produceDatePointsE(document.getElementById("add2"+String(i)).value);
+        this.state.arr.push(this.state.dataX)
+        this.state.arr.push(this.state.dataY)
+      }
+    }
 
     var layout = {
       xaxis: {
@@ -120,8 +127,8 @@ class App extends React.Component {
         showline: false
       }
     };
-    this.state.arr.push(this.state.dataX)
-    this.state.arr.push(this.state.dataY)
+    console.log(this.state.dataX)
+    
     window.Plotly.newPlot(graphDiv, this.make_trace({data:this.state.arr,set_type:"scatter", set_mode : "lines"}), layout);
   }
   render() {
@@ -129,15 +136,22 @@ class App extends React.Component {
     var that = this
     return (
       <div className="App">
-        <header className="App-header">
-         <input type ="text" id = "derivative"/>
+         <header className="App-header">
+         <div id = "SFG">
+           <text> Slope Field Generator </text>
+           <br />
+           <text>dy/dx = </text>
+           <input type ="text" id = "derivative"/>
+           <br />
+           <br />
+         </div>
          <div id = "function">
            <text>Function Graphing</text>
            <div id = "add0"></div>
            <button onClick = {function(){that.addBox("add0",0)}}>+</button>
          </div>
-         <div id = "SFG">
-           <text>Slope Field Generator</text>
+         <div id = "Constants">
+           <text>Constants</text>
            <div id = "add1"></div>
            <button onClick = {function(){that.addBox("add1",1)}}>+</button>
          </div>
